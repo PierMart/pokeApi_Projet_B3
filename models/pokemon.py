@@ -2,6 +2,7 @@ from dataclasses import field
 from models.pokemon_stats import PokemonStats
 from dataclasses import dataclass, is_dataclass, fields
 from typing import List, Optional, Type, TypeVar, Any, get_type_hints, get_origin, get_args, Union
+import random
 
 T = TypeVar("T")
 
@@ -177,6 +178,11 @@ class Pokemon:
         attack_val = next((stat for stat in attacker_stats if stat.name == "attack"), None).base_stat
         
         damage = attack_val * (defense_val / 255)
+        
+        is_critical = random.random() < 0.10
+        if is_critical:
+            damage *= 2
+        
         attacked.hp -= damage  # Le setter s'assure que HP >= 0
 
         if attacked.hp <= 0:

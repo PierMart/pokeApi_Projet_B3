@@ -133,14 +133,19 @@ class CachedPokemon:
     
     def attack(self, defender):
         if defender.is_dead:
-            return 0
+            return 0, False
         attack_val = self.get_stat('attack')
         defense_val = defender.get_stat('defense')
         damage = attack_val * (defense_val / 255)
+        
+        is_critical = random.random() < 0.10
+        if is_critical:
+            damage *= 2
+        
         defender.hp -= damage
         if defender.hp <= 0:
             defender.is_dead = True
-        return damage
+        return damage, is_critical
 
 def fight_view(request: HttpRequest):
     """Interactive battle view"""
@@ -187,9 +192,12 @@ def fight_view(request: HttpRequest):
             defender = team2[current2]
             if not attacker.is_dead and not defender.is_dead:
                 old_hp = defender.hp
-                attacker.attack(defender)
+                damage, is_critical = attacker.attack(defender)
                 damage = round(old_hp - defender.hp, 1)
-                battle_log.append(f"{attacker.name} inflige {damage} dégâts à {defender.name}!")
+                if is_critical:
+                    battle_log.append(f"💥 COUP CRITIQUE ! {attacker.name} inflige {damage} dégâts à {defender.name}!")
+                else:
+                    battle_log.append(f"{attacker.name} inflige {damage} dégâts à {defender.name}!")
                 request.session['team2_hp'][current2] = defender.hp
                 if defender.is_dead:
                     battle_log.append(f"{defender.name} est K.O.!")
@@ -201,9 +209,12 @@ def fight_view(request: HttpRequest):
             defender = team1[current1]
             if not attacker.is_dead and not defender.is_dead:
                 old_hp = defender.hp
-                attacker.attack(defender)
+                damage, is_critical = attacker.attack(defender)
                 damage = round(old_hp - defender.hp, 1)
-                battle_log.append(f"{attacker.name} inflige {damage} dégâts à {defender.name}!")
+                if is_critical:
+                    battle_log.append(f"💥 COUP CRITIQUE ! {attacker.name} inflige {damage} dégâts à {defender.name}!")
+                else:
+                    battle_log.append(f"{attacker.name} inflige {damage} dégâts à {defender.name}!")
                 request.session['team1_hp'][current1] = defender.hp
                 if defender.is_dead:
                     battle_log.append(f"{defender.name} est K.O.!")
