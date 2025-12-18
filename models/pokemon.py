@@ -152,7 +152,7 @@ class Pokemon:
 
     @hp.setter
     def hp(self, value: int):
-        self._hp = value
+        self._hp = max(0, value)  # Ne jamais descendre sous 0
 
     @property
     def is_dead(self) -> bool:
@@ -176,7 +176,8 @@ class Pokemon:
         attacker_stats = PokemonStats.from_api_list(self.stats)
         attack_val = next((stat for stat in attacker_stats if stat.name == "attack"), None).base_stat
         
-        attacked.hp -= attack_val * (defense_val / 255)
+        damage = attack_val * (defense_val / 255)
+        attacked.hp -= damage  # Le setter s'assure que HP >= 0
 
         if attacked.hp <= 0:
             attacked.is_dead = True
