@@ -2,6 +2,7 @@ from dataclasses import field
 from models.pokemon_stats import PokemonStats
 from dataclasses import dataclass, is_dataclass, fields
 from typing import List, Optional, Type, TypeVar, Any, get_type_hints, get_origin, get_args, Union
+import random
 
 T = TypeVar("T")
 
@@ -152,7 +153,7 @@ class Pokemon:
 
     @hp.setter
     def hp(self, value: int):
-        self._hp = value
+        self._hp = max(0, value)  # Ne jamais descendre sous 0
 
     @property
     def is_dead(self) -> bool:
@@ -165,19 +166,3 @@ class Pokemon:
     @classmethod
     def from_json(cls, data: dict) -> 'Pokemon':
         return from_dict(cls, data)
-
-    def attack(self, attacked: 'Pokemon'):
-        if attacked.is_dead:
-            raise ValueError("Attacked pokemon is already dead")
-
-        attacked_stats = PokemonStats.from_api_list(attacked.stats)
-        
-        defense_val = next((stat for stat in attacked_stats if stat.name == "defense"), None).base_stat
-        attacker_stats = PokemonStats.from_api_list(self.stats)
-        attack_val = next((stat for stat in attacker_stats if stat.name == "attack"), None).base_stat
-        
-        attacked.hp -= attack_val * (defense_val / 255)
-
-        if attacked.hp <= 0:
-            attacked.is_dead = True
-
