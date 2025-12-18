@@ -166,25 +166,3 @@ class Pokemon:
     @classmethod
     def from_json(cls, data: dict) -> 'Pokemon':
         return from_dict(cls, data)
-
-    def attack(self, attacked: 'Pokemon'):
-        if attacked.is_dead:
-            raise ValueError("Attacked pokemon is already dead")
-
-        attacked_stats = PokemonStats.from_api_list(attacked.stats)
-        
-        defense_val = next((stat for stat in attacked_stats if stat.name == "defense"), None).base_stat
-        attacker_stats = PokemonStats.from_api_list(self.stats)
-        attack_val = next((stat for stat in attacker_stats if stat.name == "attack"), None).base_stat
-        
-        damage = attack_val * (defense_val / 255)
-        
-        is_critical = random.random() < 0.10
-        if is_critical:
-            damage *= 2
-        
-        attacked.hp -= damage  # Le setter s'assure que HP >= 0
-
-        if attacked.hp <= 0:
-            attacked.is_dead = True
-
