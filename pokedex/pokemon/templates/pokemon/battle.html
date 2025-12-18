@@ -1,0 +1,64 @@
+{% extends "pokemon/base.html" %}
+
+{% block title %}Combat Pokémon{% endblock %}
+
+{% block content %}
+<h1 class="text-4xl font-bold text-white text-center mb-8">Combat Pokémon</h1>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Équipe 1 -->
+    <div class="bg-red-600 rounded-xl p-6 shadow-xl">
+        <h2 class="text-2xl font-bold text-white text-center mb-4"> {{ team1.name }}</h2>
+        <div class="space-y-4">
+            {% for pokemon in team1.pokemons %}
+            <div class="bg-white rounded-lg p-4 flex items-center gap-4 pokemon-card transition-all">
+                <img src="{{ pokemon.sprites.front_default }}" alt="{{ pokemon.name }}" class="w-16 h-16">
+                <div class="flex-1">
+                    <h3 class="font-bold capitalize text-lg">{{ pokemon.name }}</h3>
+                    <div class="flex gap-2 mt-1">
+                        {% for t in pokemon.types %}
+                        <span class="type-{{ t.type.name }} text-white text-xs px-2 py-1 rounded">{{ t.type.name }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="text-sm text-gray-600 mt-1">
+                        HP: {{ pokemon.hp }} | ID: #{{ pokemon.id }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Équipe 2 -->
+    <div class="bg-blue-600 rounded-xl p-6 shadow-xl">
+        <h2 class="text-2xl font-bold text-white text-center mb-4"> {{ team2.name }}</h2>
+        <div class="space-y-4">
+            {% for pokemon in team2.pokemons %}
+            <div class="bg-white rounded-lg p-4 flex items-center gap-4 pokemon-card transition-all">
+                <img src="{{ pokemon.sprites.front_default }}" alt="{{ pokemon.name }}" class="w-16 h-16">
+                <div class="flex-1">
+                    <h3 class="font-bold capitalize text-lg">{{ pokemon.name }}</h3>
+                    <div class="flex gap-2 mt-1">
+                        {% for t in pokemon.types %}
+                        <span class="type-{{ t.type.name }} text-white text-xs px-2 py-1 rounded">{{ t.type.name }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="text-sm text-gray-600 mt-1">
+                        HP: {{ pokemon.hp }} | ID: #{{ pokemon.id }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-8">
+    <a href="{% url 'pokemon:battle' %}" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-full text-xl transition-all">
+        🔄 Nouvelles équipes
+    </a>
+</div>
+<a href="{% url 'pokemon:fight' %}" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-full text-xl transition-all">
+    Combats
+</a>
+{% endblock %}

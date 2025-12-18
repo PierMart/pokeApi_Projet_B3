@@ -2,6 +2,7 @@ from dataclasses import field
 from models.pokemon_stats import PokemonStats
 from dataclasses import dataclass, is_dataclass, fields
 from typing import List, Optional, Type, TypeVar, Any, get_type_hints, get_origin, get_args, Union
+import random
 
 T = TypeVar("T")
 
@@ -152,7 +153,7 @@ class Pokemon:
 
     @hp.setter
     def hp(self, value: int):
-        self._hp = value
+        self._hp = max(0, value)  # Ne jamais descendre sous 0
 
     @property
     def is_dead(self) -> bool:
@@ -176,7 +177,13 @@ class Pokemon:
         attacker_stats = PokemonStats.from_api_list(self.stats)
         attack_val = next((stat for stat in attacker_stats if stat.name == "attack"), None).base_stat
         
-        attacked.hp -= attack_val * (defense_val / 255)
+        damage = attack_val * (defense_val / 255)
+        
+        is_critical = random.random() < 0.10
+        if is_critical:
+            damage *= 2
+        
+        attacked.hp -= damage  # Le setter s'assure que HP >= 0
 
         if attacked.hp <= 0:
             attacked.is_dead = True

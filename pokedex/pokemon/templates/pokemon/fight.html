@@ -1,0 +1,128 @@
+{% extends "pokemon/base.html" %}
+{% load static %}
+
+{% block title %}Combat !{% endblock %}
+
+{% block content %}
+<div class="flex gap-4">
+    <!-- Liste Équipe Rouge (gauche) -->
+    <div class="w-48 bg-red-900 bg-opacity-90 rounded-xl p-3">
+        <h3 class="text-white font-bold text-center mb-2">🔴 Équipe Rouge</h3>
+        {% for data in team1_data %}
+        <div class="flex items-center gap-2 p-1 rounded {% if data.is_current %}bg-red-600{% elif data.is_dead %}bg-gray-800 opacity-50{% else %}bg-red-800{% endif %} mb-1">
+            <img src="{{ data.pokemon.sprites_front }}" alt="{{ data.pokemon.name }}" class="w-10 h-10 pixelated">
+            <div class="flex-1 min-w-0">
+                <p class="text-white text-xs capitalize truncate">{{ data.pokemon.name }}</p>
+                <div class="bg-gray-300 rounded-full h-2 w-full">
+                    <div class="{% if data.is_dead %}bg-gray-500{% elif data.hp < data.max_hp|divisibleby:4 %}bg-red-500{% else %}bg-green-500{% endif %} h-2 rounded-full" style="width: {% widthratio data.hp data.max_hp 100 %}%"></div>
+                </div>
+                <p class="text-white text-xs">{{ data.hp|floatformat:0 }}/{{ data.max_hp }}</p>
+            </div>
+            {% if data.is_dead %}<span class="text-red-400 text-xs">💀</span>{% endif %}
+            {% if data.is_current %}<span class="text-yellow-400 text-xs">⚔️</span>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Zone de combat (centre) -->
+    <div class="flex-1 relative min-h-[600px] rounded-xl overflow-hidden" style="background-image: url('{% static 'battelBackground.png' %}'); background-size: cover; background-position: center;">
+        
+        {% if winner %}
+        <div class="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center z-20">
+            <div class="text-center">
+                <h2 class="text-5xl font-bold text-yellow-400 mb-4">{{ winner }} gagne !</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <button name="action" value="reset" class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold py-3 px-8 rounded-full text-xl">
+                        Nouveau combat
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Pokémon Équipe 2 (front, en haut à droite) -->
+        <div class="absolute top-8 right-8 text-center">
+            <div class="bg-blue-600 bg-opacity-80 rounded-lg p-2 mb-2">
+                <p class="text-white font-bold capitalize">{{ current_pokemon2.name }}</p>
+                <div class="bg-gray-200 rounded-full h-4 w-32">
+                    <div class="{% if current_hp2 <= 0 %}bg-gray-500{% elif hp_percent2 < 25 %}bg-red-500{% elif hp_percent2 < 50 %}bg-yellow-500{% else %}bg-green-500{% endif %} h-4 rounded-full transition-all duration-300" style="width: {{ hp_percent2|floatformat:0 }}%"></div>
+                </div>
+                <p class="text-white text-sm">HP: {{ current_hp2|floatformat:0 }}/{{ max_hp2 }}</p>
+            </div>
+            <img src="{{ current_pokemon2.sprites_front }}" 
+                 alt="{{ current_pokemon2.name }}" class="w-40 h-40 pixelated">
+        </div>
+
+        <!-- Pokémon Équipe 1 (back, en bas à gauche) -->
+        <div class="absolute bottom-32 left-8 text-center">
+            <img src="{{ current_pokemon1.sprites_back }}" 
+                 alt="{{ current_pokemon1.name }}" class="w-48 h-48 pixelated">
+            <div class="bg-red-600 bg-opacity-80 rounded-lg p-2 mt-2">
+                <p class="text-white font-bold capitalize">{{ current_pokemon1.name }}</p>
+                <div class="bg-gray-200 rounded-full h-4 w-32">
+                    <div class="{% if current_hp1 <= 0 %}bg-gray-500{% elif hp_percent1 < 25 %}bg-red-500{% elif hp_percent1 < 50 %}bg-yellow-500{% else %}bg-green-500{% endif %} h-4 rounded-full transition-all duration-300" style="width: {{ hp_percent1|floatformat:0 }}%"></div>
+                </div>
+                <p class="text-white text-sm">HP: {{ current_hp1|floatformat:0 }}/{{ max_hp1 }}</p>
+            </div>
+        </div>
+
+        <!-- Panel de combat en bas -->
+        <div class="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-90 p-4">
+            <div class="flex gap-4 justify-center mb-4">
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <button name="action" value="attack1" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-8 rounded-lg text-xl disabled:opacity-50 disabled:cursor-not-allowed" {% if winner %}disabled{% endif %}>
+                        🔴 Équipe Rouge Attaque!
+                    </button>
+                </form>
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <button name="action" value="attack2" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-xl disabled:opacity-50 disabled:cursor-not-allowed" {% if winner %}disabled{% endif %}>
+                        🔵 Équipe Bleue Attaque!
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Log de combat -->
+            <div class="bg-white rounded-lg p-3 max-h-24 overflow-y-auto">
+                {% for log in battle_log reversed %}
+                <p class="text-sm">{{ log }}</p>
+                {% empty %}
+                <p class="text-gray-500">Cliquez sur un bouton pour attaquer!</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste Équipe Bleue (droite) -->
+    <div class="w-48 bg-blue-900 bg-opacity-90 rounded-xl p-3">
+        <h3 class="text-white font-bold text-center mb-2">🔵 Équipe Bleue</h3>
+        {% for data in team2_data %}
+        <div class="flex items-center gap-2 p-1 rounded {% if data.is_current %}bg-blue-600{% elif data.is_dead %}bg-gray-800 opacity-50{% else %}bg-blue-800{% endif %} mb-1">
+            <img src="{{ data.pokemon.sprites_front }}" alt="{{ data.pokemon.name }}" class="w-10 h-10 pixelated">
+            <div class="flex-1 min-w-0">
+                <p class="text-white text-xs capitalize truncate">{{ data.pokemon.name }}</p>
+                <div class="bg-gray-300 rounded-full h-2 w-full">
+                    <div class="{% if data.is_dead %}bg-gray-500{% elif data.hp < data.max_hp|divisibleby:4 %}bg-red-500{% else %}bg-green-500{% endif %} h-2 rounded-full" style="width: {% widthratio data.hp data.max_hp 100 %}%"></div>
+                </div>
+                <p class="text-white text-xs">{{ data.hp|floatformat:0 }}/{{ data.max_hp }}</p>
+            </div>
+            {% if data.is_dead %}<span class="text-red-400 text-xs">💀</span>{% endif %}
+            {% if data.is_current %}<span class="text-yellow-400 text-xs">⚔️</span>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Bouton Reset -->
+<div class="mt-4 text-center">
+    <a href="?reset=1" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-6 rounded-lg">
+        🔄 Réinitialiser le combat
+    </a>
+</div>
+
+<style>
+    .pixelated { image-rendering: pixelated; }
+</style>
+{% endblock %}
