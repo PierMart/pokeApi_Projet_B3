@@ -7,8 +7,12 @@ api = PokeApiClient()
 
 MAX_POKEMON = 251  # Limiter aux 251 premiers (Gen 1 & 2)
 
+def index(request: HttpRequest):
+    """Page d'accueil du Pokédex"""
+    return render(request, 'pokemon/index.html')
+
 def pokedex_list(request: HttpRequest):
-    """Display list of all Pokemon"""
+    """Afficher la liste de tous les Pokémon"""
     page = int(request.GET.get('page', 1))
     limit = 20
     offset = (page - 1) * limit
@@ -48,7 +52,7 @@ def pokedex_list(request: HttpRequest):
 
 
 def pokemon_detail(request: HttpRequest, pokemon_id: str):
-    """Display details of a specific Pokemon"""
+    """Afficher les détails d'un Pokémon spécifique"""
     pokemon = api.get_pokemon(pokemon_id)
     
     context = {
