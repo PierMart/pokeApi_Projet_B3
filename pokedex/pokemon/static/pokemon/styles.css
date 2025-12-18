@@ -12,6 +12,9 @@ body {
     background: linear-gradient(125deg, var(--eevee-100), var(--eevee-300));
 }
 
+.background-footer{
+    background-color : var(--eevee-300);
+}
 a:hover{
     color: var(--eevee-800);
 }

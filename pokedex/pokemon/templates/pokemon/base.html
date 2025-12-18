@@ -8,11 +8,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{% static 'pokemon/styles.css' %}">
 </head>
-<body class="min-h-screen">
+<body class="flex flex-col min-h-screen">
     <nav class="sticky top-0 z-50 backdrop-blur-md bg-white/10 border-b border-white/20 shadow-2xl">
         <div class="relative flex items-center flex-wrap justify-between gap-6 lg:gap-0 py-2 ">
       <div class="flex w-full justify-between lg:w-auto">
-                <a href="{% url 'pokemon:list' %}" class="flex gap-2 items-center">
+                <a href="{% url 'pokemon:index' %}" class="flex gap-2 items-center">
                     <div class="relative">
                         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" 
                              alt="Pokeball" 
@@ -40,12 +40,12 @@
         </div>
     </nav>
     
-    <main class="container mx-auto px-4 py-8">
+    <main class="flex-grow container mx-auto px-4 py-8">
         {% block content %}{% endblock %}
     </main>
-    
-    <footer class="bg-red-800 text-white text-center py-4 mt-8">
-        <p>Pokédex - Données fournies par PokeAPI</p>
+
+    <footer class="background-footer text-white text-center py-4 mt-8">
+        <p>Projet B3 Pokédex - Données fournies par PokeAPI</p>
     </footer>
 </body>
 </html>
