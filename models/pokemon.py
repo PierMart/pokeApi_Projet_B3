@@ -1,3 +1,5 @@
+from dataclasses import field
+from models.pokemon_stats import PokemonStats
 from dataclasses import dataclass, is_dataclass, fields
 from typing import List, Optional, Type, TypeVar, Any, get_type_hints, get_origin, get_args, Union
 
@@ -136,6 +138,46 @@ class Pokemon:
     stats: List[PokemonStat]
     types: List[PokemonType]
 
+    _hp: int = field(init=False, repr=False)
+    _is_dead: bool = field(init=False, repr=False)
+
+    def __post_init__(self):
+        hp_stat = next((s for s in self.stats if s.stat.name == "hp"), None)
+        self._hp = hp_stat.base_stat if hp_stat else 0
+        self._is_dead = False
+
+    @property
+    def hp(self) -> int:
+        return self._hp
+
+    @hp.setter
+    def hp(self, value: int):
+        self._hp = value
+
+    @property
+    def is_dead(self) -> bool:
+        return self._is_dead
+
+    @is_dead.setter
+    def is_dead(self, value: bool):
+        self._is_dead = value
+
     @classmethod
     def from_json(cls, data: dict) -> 'Pokemon':
         return from_dict(cls, data)
+
+    def attack(self, attacked: 'Pokemon'):
+        if attacked.is_dead:
+            raise ValueError("Attacked pokemon is already dead")
+
+        attacked_stats = PokemonStats.from_api_list(attacked.stats)
+        
+        defense_val = next((stat for stat in attacked_stats if stat.name == "defense"), None).base_stat
+        attacker_stats = PokemonStats.from_api_list(self.stats)
+        attack_val = next((stat for stat in attacker_stats if stat.name == "attack"), None).base_stat
+        
+        attacked.hp -= attack_val * (defense_val / 255)
+
+        if attacked.hp <= 0:
+            attacked.is_dead = True
+
