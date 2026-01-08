@@ -9,11 +9,52 @@
     }
 /* Background Styles */
 body {
-    background: linear-gradient(125deg, var(--eevee-100), var(--eevee-300));
+    background: linear-gradient(135deg, 
+        var(--eevee-100) 0%, 
+        var(--eevee-200) 25%, 
+        var(--eevee-400) 50%, 
+        var(--eevee-200) 75%, 
+        var(--eevee-100) 100%);
+    background-attachment: fixed;
+    background-size: 100% 100%;
+    position: relative;
+    min-height: 100vh;
+}
+
+/* Ajout d'un motif subtil en arrière-plan */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(255, 230, 172, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(189, 156, 123, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(213, 156, 74, 0.2) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Motif de pokéballs subtil */
+body::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="30" r="20" fill="none" stroke="rgba(82, 49, 32, 0.05)" stroke-width="2"/><line x1="10" y1="30" x2="50" y2="30" stroke="rgba(82, 49, 32, 0.05)" stroke-width="2"/><circle cx="30" cy="30" r="5" fill="rgba(82, 49, 32, 0.05)"/></svg>');
+    background-size: 60px 60px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: -1;
 }
 
 .background-footer{
-    background-color : var(--eevee-300);
+    background: linear-gradient(180deg, var(--eevee-300), var(--eevee-800));
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
 }
 a:hover{
     color: var(--eevee-800);
@@ -68,3 +109,234 @@ a:hover{
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+
+/* ===== PAGE D'ACCUEIL ===== */
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: var(--eevee-800);
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hero-subtitle {
+    font-size: 1.5rem;
+    color: var(--eevee-300);
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    color: var(--eevee-200);
+}
+
+/* Features Grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.feature-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 2rem;
+    color: var(--eevee-50);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.feature-card-battle {
+    background: linear-gradient(135deg, var(--eevee-800), var(--eevee-500));
+}
+
+.feature-card-team {
+    background: linear-gradient(135deg, var(--eevee-500), var(--eevee-300));
+}
+
+.feature-content {
+    text-align: center;
+}
+
+.feature-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.feature-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.feature-description {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.feature-button {
+    display: inline-block;
+    font-weight: bold;
+    padding: 0.75rem 2rem;
+    border-radius: 9999px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+}
+
+.feature-button-battle {
+    background-color: var(--eevee-50);
+    color: var(--eevee-800);
+}
+
+.feature-button-battle:hover {
+    background-color: var(--eevee-100);
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.feature-button-team {
+    background-color: var(--eevee-50);
+    color: var(--eevee-500);
+}
+
+.feature-button-team:hover {
+    background-color: var(--eevee-100);
+    transform: scale(1.05);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Info Cards */
+.info-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    .info-cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.info-card {
+    background-color: var(--eevee-50);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    text-align: center;
+    border-top: 4px solid;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.info-card-gen1 {
+    border-top-color: var(--eevee-800);
+}
+
+.info-card-gen2 {
+    border-top-color: var(--eevee-500);
+}
+
+.info-card-stats {
+    border-top-color: var(--eevee-300);
+}
+
+.info-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.info-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--eevee-800);
+    margin-bottom: 0.5rem;
+}
+
+.info-description {
+    color: var(--eevee-300);
+    line-height: 1.5;
+}
+
+/* Types Section */
+.types-section {
+    background: linear-gradient(135deg, var(--eevee-100), var(--eevee-200));
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.types-title {
+    font-size: 1.875rem;
+    font-weight: bold;
+    color: var(--eevee-800);
+    margin-bottom: 1.5rem;
+}
+
+.types-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.types-container span {
+    padding: 0.5rem 1rem;
+    color: white;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: default;
+}
+
+.types-container span:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.25rem;
+    }
+    
+    .feature-title {
+        font-size: 1.5rem;
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+    }
+}

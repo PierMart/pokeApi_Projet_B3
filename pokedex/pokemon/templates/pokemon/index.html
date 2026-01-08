@@ -3,8 +3,75 @@
 {% block title %}Accueil - Pokédex{% endblock %}
 
 {% block content %}
-<div class="text-center mb-8">
-    <h1 class="text-5xl font-bold text-gray-800 mb-4">Bienvenue dans le Pokédex</h1>
-    <p class="text-gray-600 text-lg">Explorez les informations de tous vos Pokémon préférés!</p>
+<!-- Hero Section -->
+<div class="hero-section">
+    <h1 class="hero-title">⚡ Pokédex Générations 1 & 2 ⚡</h1>
+    <p class="hero-subtitle">Découvrez les 251 premiers Pokémon de Kanto et Johto</p>
+    <p class="hero-description">Attrapez-les tous et devenez le meilleur dresseur !</p>
+</div>
+
+<!-- Main Features -->
+<div class="features-grid">
+    <!-- Combat Section -->
+    <div class="feature-card feature-card-battle">
+        <div class="feature-content">
+            <div class="feature-icon">⚔️</div>
+            <h2 class="feature-title">Combats Pokémon</h2>
+            <p class="feature-description">Affrontez d'autres dresseurs dans des combats épiques ! Testez vos stratégies et découvrez les forces et faiblesses de chaque type.</p>
+            <a href="{% url 'pokemon:battle' %}" class="feature-button feature-button-battle">
+                Lancer un Combat
+            </a>
+        </div>
+    </div>
+
+    <!-- Team Building Section -->
+    <div class="feature-card feature-card-team">
+        <div class="feature-content">
+            <div class="feature-icon">👥</div>
+            <h2 class="feature-title">Créez Votre Équipe</h2>
+            <p class="feature-description">Explorez le Pokédex complet et composez l'équipe parfaite ! Analysez les statistiques et choisissez vos 6 compagnons.</p>
+            <a href="{% url 'pokemon:list' %}" class="feature-button feature-button-team">
+                Explorer le Pokédex
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Info Cards -->
+<div class="info-cards-grid">
+    <div class="info-card info-card-gen1">
+        <div class="info-icon">🔴</div>
+        <h3 class="info-title">151 Pokémon Gen 1</h3>
+        <p class="info-description">De Bulbizarre à Mew, découvrez les Pokémon légendaires de Kanto</p>
+    </div>
+    
+    <div class="info-card info-card-gen2">
+        <div class="info-icon">🟡</div>
+        <h3 class="info-title">100 Pokémon Gen 2</h3>
+        <p class="info-description">De Germignon à Celebi, explorez les nouvelles espèces de Johto</p>
+    </div>
+    
+    <div class="info-card info-card-stats">
+        <div class="info-icon">📊</div>
+        <h3 class="info-title">Stats Détaillées</h3>
+        <p class="info-description">Consultez les statistiques complètes de chaque Pokémon</p>
+    </div>
+</div>
+
+<!-- Types Overview -->
+<div class="types-section">
+    <h3 class="types-title">Types Pokémon</h3>
+    <div class="types-container">
+        <span class="type-grass">🌿 Plante</span>
+        <span class="type-fire">🔥 Feu</span>
+        <span class="type-water">💧 Eau</span>
+        <span class="type-electric">⚡ Électrik</span>
+        <span class="type-ghost">👻 Spectre</span>
+        <span class="type-fairy">🧚 Fée</span>
+        <span class="type-fighting">🥊 Combat</span>
+        <span class="type-poison">☠️ Poison</span>
+        <span class="type-psychic">⚡ Psy</span>
+        <span class="type-rock">🪨 Roche</span>
+    </div>
 </div>
 {% endblock %}
