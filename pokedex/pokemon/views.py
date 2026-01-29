@@ -12,41 +12,70 @@ def index(request: HttpRequest):
     return render(request, 'pokemon/index.html')
 
 def pokedex_list(request: HttpRequest):
-    """Afficher la liste de tous les Pokémon"""
+    """Afficher la liste de tous les Pokémon avec recherche"""
+    search_query = request.GET.get('search', '').strip()
     page = int(request.GET.get('page', 1))
     limit = 20
-    offset = (page - 1) * limit
     
-    # Ne pas dépasser les 251 premiers Pokémon
-    if offset >= MAX_POKEMON:
-        offset = MAX_POKEMON - limit
-        page = (offset // limit) + 1
-    
-    # Ajuster la limite si on approche de la fin
-    remaining = MAX_POKEMON - offset
-    actual_limit = min(limit, remaining)
-    
-    pokemons_data = api.get_alls(limit=actual_limit, offset=offset)
-    
-    # Extract Pokemon ID from URL and create enriched list
-    pokemons = []
-    for p in pokemons_data:
-        pokemon_id = p.url.rstrip('/').split('/')[-1]
-        pokemons.append({
-            'name': p.name,
-            'id': pokemon_id,
-            'url': p.url,
-        })
-    
-    # Calculer s'il y a une page suivante
-    has_next = (offset + actual_limit) < MAX_POKEMON
+    # Si une recherche est effectuée
+    if search_query:
+        # Récupérer tous les Pokémon pour la recherche
+        all_pokemons_data = api.get_alls(limit=MAX_POKEMON, offset=0)
+        
+        # Filtrer par nom ou ID
+        filtered_pokemons = []
+        for p in all_pokemons_data:
+            pokemon_id = p.url.rstrip('/').split('/')[-1]
+            # Recherche par nom ou par ID
+            if (search_query.lower() in p.name.lower() or 
+                search_query == pokemon_id or 
+                search_query.zfill(3) == pokemon_id.zfill(3)):
+                filtered_pokemons.append({
+                    'name': p.name,
+                    'id': pokemon_id,
+                    'url': p.url,
+                })
+        
+        pokemons = filtered_pokemons
+        has_next = False
+        has_prev = False
+        
+    else:
+        # Affichage normal avec pagination
+        offset = (page - 1) * limit
+        
+        # Ne pas dépasser les 251 premiers Pokémon
+        if offset >= MAX_POKEMON:
+            offset = MAX_POKEMON - limit
+            page = (offset // limit) + 1
+        
+        # Ajuster la limite si on approche de la fin
+        remaining = MAX_POKEMON - offset
+        actual_limit = min(limit, remaining)
+        
+        pokemons_data = api.get_alls(limit=actual_limit, offset=offset)
+        
+        # Extract Pokemon ID from URL and create enriched list
+        pokemons = []
+        for p in pokemons_data:
+            pokemon_id = p.url.rstrip('/').split('/')[-1]
+            pokemons.append({
+                'name': p.name,
+                'id': pokemon_id,
+                'url': p.url,
+            })
+        
+        # Calculer s'il y a une page suivante
+        has_next = (offset + actual_limit) < MAX_POKEMON
+        has_prev = page > 1
     
     context = {
         'pokemons': pokemons,
         'current_page': page,
         'next_page': page + 1 if has_next else None,
-        'prev_page': page - 1 if page > 1 else None,
+        'prev_page': page - 1 if has_prev else None,
         'total_pokemon': MAX_POKEMON,
+        'search_query': search_query,
     }
     return render(request, 'pokemon/list.html', context)
 
