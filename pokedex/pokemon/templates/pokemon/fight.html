@@ -44,27 +44,28 @@
         <!-- Pokémon Équipe 2 (front, en haut à droite) -->
         <div class="pokemon-display pokemon-opponent">
             <div class="pokemon-info info-blue">
-                <p class="pokemon-name">{{ current_pokemon2.name }}</p>
+                <p class="pokemon-name-battle">{{ current_pokemon2.name }}</p>
                 <div class="hp-bar-container">
-                    <div class="hp-bar {% if current_hp2 <= 0 %}hp-dead{% elif hp_percent2 < 25 %}hp-critical{% elif hp_percent2 < 50 %}hp-warning{% else %}hp-healthy{% endif %}" style="width: {{ hp_percent2|floatformat:0 }}%"></div>
+                    <div class="hp-bar {% if current_hp2 <= 0 %}hp-dead{% elif hp_percent2 < 25 %} hp-critical{% elif hp_percent2 < 50 %}hp-warning{% else %}hp-healthy{% endif %}" style="width: {{ hp_percent2|floatformat:0 }}%"></div>
                 </div>
                 <p class="hp-text">HP: {{ current_hp2|floatformat:0 }}/{{ max_hp2 }}</p>
             </div>
             <img src="{{ current_pokemon2.sprites_front }}" 
-                 alt="{{ current_pokemon2.name }}" class="pokemon-sprite sprite-large">
+                 alt="{{ current_pokemon2.name }}" class="pokemon-sprite-battle sprite-large">
         </div>
 
         <!-- Pokémon Équipe 1 (back, en bas à gauche) -->
         <div class="pokemon-display pokemon-player">
-            <img src="{{ current_pokemon1.sprites_back }}" 
-                 alt="{{ current_pokemon1.name }}" class="pokemon-sprite sprite-xlarge">
-            <div class="pokemon-info info-red">
-                <p class="pokemon-name">{{ current_pokemon1.name }}</p>
+                     <div class="pokemon-info info-red">
+                <p class="pokemon-name-battle">{{ current_pokemon1.name }}</p>
                 <div class="hp-bar-container">
                     <div class="hp-bar {% if current_hp1 <= 0 %}hp-dead{% elif hp_percent1 < 25 %}hp-critical{% elif hp_percent1 < 50 %}hp-warning{% else %}hp-healthy{% endif %}" style="width: {{ hp_percent1|floatformat:0 }}%"></div>
                 </div>
                 <p class="hp-text">HP: {{ current_hp1|floatformat:0 }}/{{ max_hp1 }}</p>
             </div>
+            <img src="{{ current_pokemon1.sprites_back }}" 
+                 alt="{{ current_pokemon1.name }}" class="pokemon-sprite-battle sprite-xlarge">
+   
         </div>
 
         <!-- Panel de combat en bas -->
@@ -72,14 +73,20 @@
             <div class="battle-buttons">
                 <form method="post" class="inline">
                     {% csrf_token %}
-                    <button name="action" value="attack1" class="btn-attack btn-red" {% if winner %}disabled{% endif %}>
-                        🔴 Équipe Rouge Attaque!
+                    <button name="action" value="attack" class="btn-action btn-attack-action" {% if winner %}disabled{% endif %}>
+                        ⚔️ Attaquer
                     </button>
                 </form>
                 <form method="post" class="inline">
                     {% csrf_token %}
-                    <button name="action" value="attack2" class="btn-attack btn-blue" {% if winner %}disabled{% endif %}>
-                        🔵 Équipe Bleue Attaque!
+                    <button name="action" value="heal" class="btn-action btn-heal" {% if winner %}disabled{% endif %}>
+                        💚 Soigner
+                    </button>
+                </form>
+                <form method="post" class="inline">
+                    {% csrf_token %}
+                    <button name="action" value="flee" class="btn-action btn-flee" {% if winner %}disabled{% endif %}>
+                        🏃 Fuir
                     </button>
                 </form>
             </div>
@@ -89,7 +96,7 @@
                 {% for log in battle_log reversed %}
                 <p class="log-entry">{{ log }}</p>
                 {% empty %}
-                <p class="log-empty">Cliquez sur un bouton pour attaquer!</p>
+                <p class="log-empty">Choisissez une action pour commencer le combat !</p>
                 {% endfor %}
             </div>
         </div>
@@ -121,417 +128,4 @@
         🔄 Réinitialiser le combat
     </a>
 </div>
-
-<style>
-/* ===== STYLE CYNDAQUIL - RÈGLE 60-30-10 ===== */
-.battle-container {
-    display: flex;
-    gap: 1rem;
-    max-width: 1400px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-/* ===== PANNEAUX D'ÉQUIPE (30% Bleu) ===== */
-.team-panel {
-    width: 220px;
-    background-color: var(--Cyndaquil-blue);
-    border-radius: 16px;
-    padding: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.team-red {
-    background: linear-gradient(135deg, var(--Cyndaquil-blue) 0%, #2d4f63 100%);
-}
-
-.team-blue {
-    background: linear-gradient(135deg, #2d4f63 0%, var(--Cyndaquil-blue) 100%);
-}
-
-.team-title {
-    color: var(--Cyndaquil-50);
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 0.75rem;
-    font-size: 1.1rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.team-member {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.1);
-    margin-bottom: 0.5rem;
-    transition: all 0.3s ease;
-}
-
-.team-member.active {
-    background-color: var(--Cyndaquil-orange);
-    box-shadow: 0 0 15px rgba(255, 90, 0, 0.5);
-}
-
-.team-member.dead {
-    background-color: rgba(0, 0, 0, 0.3);
-    opacity: 0.5;
-}
-
-.member-sprite {
-    width: 45px;
-    height: 45px;
-    image-rendering: pixelated;
-}
-
-.member-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.member-name {
-    color: var(--Cyndaquil-50);
-    font-size: 0.85rem;
-    text-transform: capitalize;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-bottom: 0.25rem;
-}
-
-.status-icon {
-    font-size: 0.9rem;
-}
-
-.status-icon.active {
-    animation: pulse 1s ease-in-out infinite;
-}
-
-/* ===== ZONE DE COMBAT (60% Blanc) ===== */
-.battle-arena {
-    flex: 1;
-    position: relative;
-    min-height: 600px;
-    border-radius: 16px;
-    overflow: hidden;
-    background-image: url('/asset/battelBackground.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: var(--Cyndaquil-50);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.battle-arena::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
-    z-index: 0;
-}
-
-.battle-arena > * {
-    position: relative;
-    z-index: 1;
-}
-
-/* ===== OVERLAY VICTOIRE ===== */
-.winner-overlay {
-    position: absolute;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 20;
-    animation: fadeIn 0.5s ease;
-}
-
-.winner-content {
-    text-align: center;
-}
-
-.winner-title {
-    font-size: 3rem;
-    font-weight: bold;
-    color: var(--Cyndaquil-yellow);
-    margin-bottom: 2rem;
-    text-shadow: 0 0 20px rgba(255, 238, 164, 0.8);
-    animation: victoryPulse 1s ease-in-out infinite;
-}
-
-/* ===== AFFICHAGE POKÉMON ===== */
-.pokemon-display {
-    position: absolute;
-    text-align: center;
-}
-
-.pokemon-opponent {
-    top: 2rem;
-    right: 2rem;
-}
-
-.pokemon-player {
-    bottom: 140px;
-    left: 2rem;
-}
-
-.pokemon-sprite {
-    image-rendering: pixelated;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-}
-
-.sprite-large {
-    width: 160px;
-    height: 160px;
-}
-
-.sprite-xlarge {
-    width: 200px;
-    height: 200px;
-}
-
-.pokemon-info {
-    background-color: rgba(57, 98, 123, 0.95);
-    border-radius: 12px;
-    padding: 0.75rem;
-    margin-bottom: 0.5rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.info-blue {
-    background-color: rgba(57, 98, 123, 0.95);
-}
-
-.info-red {
-    background-color: rgba(222, 0, 0, 0.9);
-    margin-bottom: 0;
-    margin-top: 0.5rem;
-}
-
-.pokemon-name {
-    color: var(--Cyndaquil-50);
-    font-weight: bold;
-    text-transform: capitalize;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
-}
-
-/* ===== BARRES DE HP ===== */
-.hp-bar-container {
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 9999px;
-    height: 12px;
-    width: 140px;
-    overflow: hidden;
-    margin: 0 auto 0.25rem;
-}
-
-.hp-bar {
-    height: 100%;
-    border-radius: 9999px;
-    transition: all 0.3s ease;
-}
-
-.hp-healthy {
-    background-color: #10b981;
-}
-
-.hp-warning {
-    background-color: #eab308;
-}
-
-.hp-critical {
-    background-color: var(--Cyndaquil-red);
-    animation: blink 0.5s ease-in-out infinite;
-}
-
-.hp-dead {
-    background-color: var(--Cyndaquil-grey);
-}
-
-.hp-text {
-    color: var(--Cyndaquil-50);
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-/* ===== CONTRÔLES DE COMBAT (30% Bleu + 10% Accents) ===== */
-.battle-controls {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: rgba(57, 98, 123, 0.95);
-    padding: 1.25rem;
-}
-
-.battle-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 1rem;
-}
-
-.battle-buttons .inline {
-    display: inline;
-}
-
-/* ===== BOUTONS (10% Accents Rouge/Orange) ===== */
-.btn-attack {
-    font-weight: bold;
-    padding: 0.875rem 2rem;
-    border-radius: 12px;
-    font-size: 1.125rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-.btn-red {
-    background: linear-gradient(135deg, var(--Cyndaquil-red) 0%, #b80000 100%);
-    color: var(--Cyndaquil-50);
-}
-
-.btn-red:hover:not(:disabled) {
-    background: linear-gradient(135deg, #ff0000 0%, var(--Cyndaquil-red) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(222, 0, 0, 0.4);
-}
-
-.btn-blue {
-    background: linear-gradient(135deg, var(--Cyndaquil-blue) 0%, #2d4f63 100%);
-    color: var(--Cyndaquil-50);
-}
-
-.btn-blue:hover:not(:disabled) {
-    background: linear-gradient(135deg, #4a7a9a 0%, var(--Cyndaquil-blue) 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(57, 98, 123, 0.4);
-}
-
-.btn-attack:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--Cyndaquil-yellow) 0%, #ffd966 100%);
-    color: var(--text-primary);
-    font-weight: bold;
-    padding: 0.875rem 2rem;
-    border-radius: 9999px;
-    font-size: 1.25rem;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #fff4cc 0%, var(--Cyndaquil-yellow) 100%);
-    transform: scale(1.05);
-    box-shadow: 0 6px 12px rgba(255, 238, 164, 0.5);
-}
-
-.btn-large {
-    padding: 1rem 2.5rem;
-    font-size: 1.5rem;
-}
-
-.btn-secondary {
-    background-color: var(--Cyndaquil-blue);
-    color: var(--Cyndaquil-50);
-    font-weight: bold;
-    padding: 0.75rem 1.5rem;
-    border-radius: 12px;
-    text-decoration: none;
-    display: inline-block;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.btn-secondary:hover {
-    background-color: var(--Cyndaquil-orange);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(255, 90, 0, 0.3);
-}
-
-/* ===== LOG DE COMBAT (60% Blanc) ===== */
-.battle-log {
-    background-color: var(--Cyndaquil-50);
-    border-radius: 12px;
-    padding: 0.875rem;
-    max-height: 100px;
-    overflow-y: auto;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.log-entry {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-    padding: 0.25rem 0;
-    border-bottom: 1px solid rgba(172, 172, 172, 0.2);
-}
-
-.log-entry:last-child {
-    border-bottom: none;
-}
-
-.log-empty {
-    color: var(--text-muted);
-    font-style: italic;
-}
-
-/* ===== CONTENEUR RESET ===== */
-.reset-container {
-    text-align: center;
-    margin-top: 1.5rem;
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes victoryPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 1024px) {
-    .battle-container {
-        flex-direction: column;
-    }
-    
-    .team-panel {
-        width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-    
-    .team-member {
-        flex: 1 1 calc(50% - 0.5rem);
-    }
-}
-</style>
 {% endblock %}

@@ -187,7 +187,7 @@ def fight_view(request: HttpRequest):
     # Si c'est un GET direct (refresh ou accès direct), rediriger vers battle pour nouvelles équipes
     if request.method == 'GET' and 'team1_hp' in request.session:
         # Si combat déjà en cours mais refresh = reset tout
-        for key in ['team1_hp', 'team2_hp', 'current_pokemon1', 'current_pokemon2', 'battle_log', 'team1_cache', 'team2_cache']:
+        for key in ['team1_hp', 'team2_hp', 'current_pokemon1', 'current_pokemon2', 'battle_log', 'team1_cache', 'team2_cache', 'winner']:
             request.session.pop(key, None)
         return redirect('pokemon:battle')
     
@@ -215,12 +215,14 @@ def fight_view(request: HttpRequest):
     battle_log = request.session['battle_log']
     winner = None
     
-    # Gérer les attaques
+    # Gérer les actions en mode tour par tour
     if request.method == 'POST':
         action = request.POST.get('action')
         
-        if action == 'attack1' and current1 < 6 and current2 < 6:
-            # Équipe 1 attaque
+        if action == 'attack' and current1 < 6 and current2 < 6:
+            # TOUR COMPLET : Équipe 1 attaque puis Équipe 2 contre-attaque
+            
+            # Phase 1 : Équipe Rouge attaque
             attacker = team1[current1]
             defender = team2[current2]
             if not attacker.is_dead and not defender.is_dead:
@@ -228,33 +230,71 @@ def fight_view(request: HttpRequest):
                 damage, is_critical = attacker.attack(defender)
                 damage = round(old_hp - defender.hp, 1)
                 if is_critical:
-                    battle_log.append(f"💥 COUP CRITIQUE ! {attacker.name} inflige {damage} dégâts à {defender.name}!")
+                    battle_log.append(f"💥 COUP CRITIQUE ! {attacker.name} (🔴Rouge) inflige {damage} dégâts à {defender.name} (🔵Bleu)!")
                 else:
-                    battle_log.append(f"{attacker.name} inflige {damage} dégâts à {defender.name}!")
+                    battle_log.append(f"⚔️ {attacker.name} (🔴Rouge) inflige {damage} dégâts à {defender.name} (🔵Bleu)!")
                 request.session['team2_hp'][current2] = defender.hp
                 if defender.is_dead:
-                    battle_log.append(f"{defender.name} est K.O.!")
+                    battle_log.append(f"💀 {defender.name} (🔵Bleu) est K.O.!")
                     request.session['current_pokemon2'] = current2 + 1
+                    # Recharger les indices après changement
+                    current2 = request.session['current_pokemon2']
+            
+            # Phase 2 : Équipe Bleue contre-attaque (si elle peut encore)
+            if current2 < 6:  # Vérifier qu'il reste des Pokémon
+                attacker2 = team2[current2]
+                defender2 = team1[current1]
+                if not attacker2.is_dead and not defender2.is_dead:
+                    old_hp2 = defender2.hp
+                    damage2, is_critical2 = attacker2.attack(defender2)
+                    damage2 = round(old_hp2 - defender2.hp, 1)
+                    if is_critical2:
+                        battle_log.append(f"💥 CONTRE-ATTAQUE CRITIQUE ! {attacker2.name} (🔵Bleu) inflige {damage2} dégâts à {defender2.name} (🔴Rouge)!")
+                    else:
+                        battle_log.append(f"🛡️ {attacker2.name} (🔵Bleu) contre-attaque et inflige {damage2} dégâts à {defender2.name} (🔴Rouge)!")
+                    request.session['team1_hp'][current1] = defender2.hp
+                    if defender2.is_dead:
+                        battle_log.append(f"💀 {defender2.name} (🔴Rouge) est K.O.!")
+                        request.session['current_pokemon1'] = current1 + 1
         
-        elif action == 'attack2' and current1 < 6 and current2 < 6:
-            # Équipe 2 attaque
-            attacker = team2[current2]
-            defender = team1[current1]
-            if not attacker.is_dead and not defender.is_dead:
-                old_hp = defender.hp
-                damage, is_critical = attacker.attack(defender)
-                damage = round(old_hp - defender.hp, 1)
-                if is_critical:
-                    battle_log.append(f"💥 COUP CRITIQUE ! {attacker.name} inflige {damage} dégâts à {defender.name}!")
-                else:
-                    battle_log.append(f"{attacker.name} inflige {damage} dégâts à {defender.name}!")
-                request.session['team1_hp'][current1] = defender.hp
-                if defender.is_dead:
-                    battle_log.append(f"{defender.name} est K.O.!")
-                    request.session['current_pokemon1'] = current1 + 1
+        elif action == 'heal' and current1 < 6 and current2 < 6:
+            # Action SOIGNER : Soigne le Pokémon actif de l'équipe Rouge de 10 à 20 HP
+            pokemon = team1[current1]
+            if not pokemon.is_dead:
+                heal_amount = random.randint(10, 20)
+                old_hp = request.session['team1_hp'][current1]
+                new_hp = min(old_hp + heal_amount, pokemon.max_hp)
+                actual_heal = round(new_hp - old_hp, 1)
+                request.session['team1_hp'][current1] = new_hp
+                battle_log.append(f"💚 {pokemon.name} (🔴Rouge) se soigne et récupère {actual_heal} HP!")
+                
+                # Phase 2 : Équipe Bleue attaque pendant ce temps
+                if current2 < 6:
+                    attacker2 = team2[current2]
+                    defender2 = team1[current1]
+                    if not attacker2.is_dead and not defender2.is_dead:
+                        old_hp2 = defender2.hp
+                        damage2, is_critical2 = attacker2.attack(defender2)
+                        damage2 = round(old_hp2 - defender2.hp, 1)
+                        if is_critical2:
+                            battle_log.append(f"💥 CONTRE-ATTAQUE CRITIQUE ! {attacker2.name} (🔵Bleu) profite du soin et inflige {damage2} dégâts à {defender2.name} (🔴Rouge)!")
+                        else:
+                            battle_log.append(f"⚡ {attacker2.name} (🔵Bleu) profite du soin et inflige {damage2} dégâts à {defender2.name} (🔴Rouge)!")
+                        request.session['team1_hp'][current1] = defender2.hp
+                        if defender2.is_dead:
+                            battle_log.append(f"💀 {defender2.name} (🔴Rouge) est K.O.!")
+                            request.session['current_pokemon1'] = current1 + 1
+        
+        elif action == 'flee':
+            # Action FUIR : Abandon du combat
+            battle_log.append(f"🏃 L'Équipe Rouge fuit le combat!")
+            winner = "Équipe Bleue (par abandon)"
+            request.session['winner'] = winner
+            request.session['battle_log'] = battle_log
+            request.session.modified = True
         
         elif action == 'reset':
-            for key in ['team1_hp', 'team2_hp', 'current_pokemon1', 'current_pokemon2', 'battle_log']:
+            for key in ['team1_hp', 'team2_hp', 'current_pokemon1', 'current_pokemon2', 'battle_log', 'winner']:
                 request.session.pop(key, None)
             return redirect('pokemon:battle')
         
@@ -266,10 +306,12 @@ def fight_view(request: HttpRequest):
         current2 = request.session['current_pokemon2']
     
     # Vérifier le gagnant
-    if current1 >= 6:
-        winner = "Équipe Bleue"
-    elif current2 >= 6:
-        winner = "Équipe Rouge"
+    winner = request.session.get('winner', None)  # Récupérer le winner s'il existe déjà (pour "flee")
+    if not winner:
+        if current1 >= 6:
+            winner = "Équipe Bleue"
+        elif current2 >= 6:
+            winner = "Équipe Rouge"
     
     # Préparer les données des équipes avec statut
     team1_data = []
