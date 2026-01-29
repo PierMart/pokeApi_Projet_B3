@@ -19,7 +19,46 @@
         <div class="p-8">
             <div class="text-center mb-6">
                 <span class="text-gray-400 text-xl">#{{ pokemon.id }}</span>
-                <h1 class="text-4xl font-bold text-gray-800 capitalize">{{ pokemon.name }}</h1>
+                
+                <!-- Navigation avec le nom au centre -->
+                <div class="flex items-center justify-center gap-4 mt-2">
+                    <!-- Flèche précédent -->
+                    {% if pokemon.id|add:"-1" > 0 %}
+                    <a href="{% url 'pokemon:detail' pokemon.id|add:'-1' %}" 
+                       class="navigation-arrow navigation-arrow-prev"
+                       title="Pokémon précédent">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </a>
+                    {% else %}
+                    <div class="navigation-arrow navigation-arrow-disabled">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Nom du Pokémon -->
+                    <h1 class="text-4xl font-bold text-gray-800 capitalize">{{ pokemon.name }}</h1>
+                    
+                    <!-- Flèche suivant -->
+                    {% if pokemon.id < 251 %}
+                    <a href="{% url 'pokemon:detail' pokemon.id|add:'1' %}" 
+                       class="navigation-arrow navigation-arrow-next"
+                       title="Pokémon suivant">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </a>
+                    {% else %}
+                    <div class="navigation-arrow navigation-arrow-disabled">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
             
             <div class="flex justify-center gap-2 mb-8">
@@ -60,7 +99,7 @@
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-3">
                                 <div class="bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full" 
-                                     style="width: {% widthratio stat.base_stat 255 100 %}%"></div>
+                                style="width: {% widthratio stat.base_stat 255 100 %}%"></div>
                             </div>
                         </div>
                         {% endfor %}
